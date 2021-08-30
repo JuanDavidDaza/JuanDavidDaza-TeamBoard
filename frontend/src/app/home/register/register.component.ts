@@ -18,6 +18,7 @@ export class RegisterComponent implements OnInit {
   //inicializo las variables del mensaje emergente, en este caso saldra en la esquina superior
   horizontalPosition: MatSnackBarHorizontalPosition = 'end';
   verticalPosition: MatSnackBarVerticalPosition = 'top';
+  durationInSeconds: number = 2;
 
   //antes que cargue todo
   constructor(
@@ -26,16 +27,58 @@ export class RegisterComponent implements OnInit {
     private _snackBar: MatSnackBar
   ) {
     this.message = '';
-    this.registerData={};
+    this.registerData = {};
   }
 
   //apenas cargue todo se inicializa
   ngOnInit(): void {}
 
-  registerUser() {};
+  registerUser() {
+    if (
+      !this.registerData.name ||
+      !this.registerData.email ||
+      !this.registerData.password
+    ) {
+      console.log('Failed process: Incomplete data');
+      this.message = 'Failed process: Incomplete data';
+      this.openSnackBarError();
+      this.registerData = {};
+    } else {
+      this._userService.registerUser(this.registerData).subscribe(
+        (res) => {
+          console.log(res);
+          localStorage.setItem('token', res.jwtToken);
+          //despues de que se registre lo redireccione a crear una tarea
+          this._router.navigate(['/saveTaks']);
+          this.message = 'Successfull user registration';
+          this.openSnackBarSuccesfull();
+          //limpio el json
+          this.registerData = {};
+        },
+        (err) => {
+          console.log(err);
+          this.message = err.error;
+          this.openSnackBarError();
+        }
+      );
+    }
+  }
 
-  openSnackBarSuccesfull() {};
+  openSnackBarSuccesfull() {
+    this._snackBar.open(this.message, 'x', {
+      horizontalPosition: this.horizontalPosition,
+      verticalPosition: this.verticalPosition,
+      duration: this.durationInSeconds * 1000,
+      panelClass: ['style-snackBarTrue'],
+    });
+  }
 
-  openSnackBarError() {};
-  
+  openSnackBarError() {
+    this._snackBar.open(this.message, 'x', {
+      horizontalPosition: this.horizontalPosition,
+      verticalPosition: this.verticalPosition,
+      duration: this.durationInSeconds * 1000,
+      panelClass: ['style-snackBarFalse'],
+    });
+  }
 }

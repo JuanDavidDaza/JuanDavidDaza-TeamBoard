@@ -77,8 +77,8 @@ const deleteTask = async (req, res) => {
   if (!validId) return res.status(400).send("Invalid id");
 
   let board = await Board.findByIdAndDelete(req.params._id);
-  if (!board) return res.status(400).send("Task not found");
-  return res.status(200).send("Task deleted");
+  if (!board) return res.status(400).send({ message: "Task not found" });
+  return res.status(200).send({ message: "Task deleted" });
 };
 
 module.exports = { saveTask, listTask, updateTask, deleteTask, saveTaskImg };
